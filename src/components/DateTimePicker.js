@@ -45,7 +45,7 @@ const DateTimePicker = ({ label, defaultDate, onChangeDateTime }) => {
           {label}
         </label>
         <input
-          className="block w-full rounded-md border border-gray-300 bg-gray-50 py-2 pl-1.5 pr-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 md:py-1.5 md:pl-2"
+          className="block w-full rounded-t-md border border-gray-300 bg-gray-50 px-1.5 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 md:py-1.5 md:pl-2.5"
           type="date"
           id="date"
           name="date"

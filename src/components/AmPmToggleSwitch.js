@@ -1,6 +1,6 @@
 const AmPmToggleSwitch = ({ isAm, onChangeIsAm, name }) => {
   return (
-    <ul className="flex flex-col text-xs font-semibold ">
+    <ul className="flex flex-col text-xs font-semibold md:flex-row ">
       <li className="h-full">
         <input
           type="radio"
@@ -14,7 +14,7 @@ const AmPmToggleSwitch = ({ isAm, onChangeIsAm, name }) => {
         />
         <label
           htmlFor={`${name}-am`}
-          className="py-auto inline-flex h-full w-full cursor-pointer items-center justify-between rounded-tr-md border border-gray-200 bg-white px-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 peer-checked:text-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:peer-checked:text-white"
+          className="py-auto inline-flex h-full w-full cursor-pointer items-center justify-between border border-gray-200 bg-white px-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600 peer-checked:text-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:peer-checked:text-white"
         >
           <div className="select-none">AM</div>
         </label>

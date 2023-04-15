@@ -3,7 +3,7 @@ import React from "react";
 const Modal = ({ children, id, setIsOpen }) => {
   return (
     <>
-      {/* <!-- Main modal --> */}
+      {/* <!-- Modal Container --> */}
       <div
         id={id}
         tabIndex="-1"
@@ -11,7 +11,7 @@ const Modal = ({ children, id, setIsOpen }) => {
         className="fixed left-1/2 top-1/2 z-50 max-h-full max-w-full -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto overflow-x-hidden"
       >
         <div className="relative max-h-full w-full max-w-md">
-          {/* <!-- Modal content --> */}
+          {/* <!-- Close Button --> */}
           <div className="relative rounded-lg bg-white shadow dark:bg-gray-700">
             <button
               type="button"
@@ -34,6 +34,7 @@ const Modal = ({ children, id, setIsOpen }) => {
               </svg>
               <span className="sr-only">Close modal</span>
             </button>
+            {/* <!-- Modal Content --> */}
             <div className="px-6 py-6 lg:px-8">{children}</div>
           </div>
         </div>

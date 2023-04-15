@@ -49,8 +49,8 @@ function NewTaskForm({ successCallback, failureCallback }) {
     const userTask = {
       user_id: user.id,
       task_id: taskId,
-      start_date_time: startTime,
-      end_date_time: endTime,
+      start_date_time: startDateTime,
+      end_date_time: endDateTime,
     };
 
     let { error } = await supabase.from("user_task").insert(userTask);
