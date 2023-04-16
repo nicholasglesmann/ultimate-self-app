@@ -1,11 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Modal from "../../../components/Modal";
 import NewTaskForm from "./NewTaskForm";
+import Toast, { TOAST_TYPES } from "../../../components/Toast";
 
 const newTaskFormId = "taskForm";
 
 const NewTaskButtonAndModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  // const updateToastVisibility = useCallback(() => {
+  //   setShowToast(false);
+  // }, [setShowToast]);
+
+  // const dismissToast = useEffect(() => {
+  //   const toastTimer = setTimeout(() => {
+  //     updateToastVisibility(false);
+  //   }, 2000);
+
+  //   return () => clearTimeout(toastTimer);
+  // }, [updateToastVisibility]);
+
+  const handleNewTaskCreated = () => {
+    setIsOpen(false);
+    console.log("Task created!");
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 2000);
+  };
 
   return (
     <>
@@ -21,8 +44,11 @@ const NewTaskButtonAndModal = () => {
       </button>
       {isOpen && (
         <Modal id={newTaskFormId} setIsOpen={setIsOpen}>
-          <NewTaskForm />
+          <NewTaskForm successCallback={handleNewTaskCreated} />
         </Modal>
+      )}
+      {showToast && (
+        <Toast message="Task created!" type={TOAST_TYPES.SUCCESS} closeCallback={() => setShowToast(false)} />
       )}
     </>
   );

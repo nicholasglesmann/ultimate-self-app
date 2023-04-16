@@ -5,11 +5,12 @@ import formStyles from "../../../styles/formStyles";
 
 const defaultTaskLengthMinutes = 30; // should be a setting
 const defaultTaskLengthMilliseconds = defaultTaskLengthMinutes * 60000;
-const now = Date.now() - new Date().getTimezoneOffset() * 60000;
-const defaultStartDateTime = new Date(now - defaultTaskLengthMilliseconds);
-const defaultEndDateTime = new Date(now);
 
 function NewTaskForm({ successCallback, failureCallback }) {
+  const now = Date.now() - new Date().getTimezoneOffset() * 60000;
+  const defaultStartDateTime = new Date(now - defaultTaskLengthMilliseconds);
+  const defaultEndDateTime = new Date(now);
+
   const supabase = useSupabaseClient();
   const user = useUser();
 
@@ -29,6 +30,7 @@ function NewTaskForm({ successCallback, failureCallback }) {
       // do some validation first
       const taskId = await upsertTaskRecord();
       await upsertUserTaskRecord(taskId);
+      successCallback();
     } catch (error) {
       console.log(error);
     }
