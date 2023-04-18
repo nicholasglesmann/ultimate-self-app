@@ -9,18 +9,6 @@ const NewTaskButtonAndModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  // const updateToastVisibility = useCallback(() => {
-  //   setShowToast(false);
-  // }, [setShowToast]);
-
-  // const dismissToast = useEffect(() => {
-  //   const toastTimer = setTimeout(() => {
-  //     updateToastVisibility(false);
-  //   }, 2000);
-
-  //   return () => clearTimeout(toastTimer);
-  // }, [updateToastVisibility]);
-
   const handleNewTaskCreated = () => {
     setIsOpen(false);
     console.log("Task created!");

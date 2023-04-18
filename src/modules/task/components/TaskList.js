@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { useFetchUserTaskByDates } from "../api/useFetchUserTask";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { getFormattedTimeStringFromString } from "../../../utils/DateTime";
+import Spinner from "../../../components/Spinner";
 
-const COLUMN_NAMES = ["Task Name", "Catagory", "Start Time", "End Time", "Actions"];
+const oddRowClasses = "border-b bg-white dark:border-gray-700 dark:bg-gray-900 last:border-none";
+const evenRowClasses = "border-b bg-gray-50 dark:border-gray-700 dark:bg-gray-800 last:border-none";
 
 const TaskList = () => {
   const supabase = useSupabaseClient();
@@ -21,10 +23,7 @@ const TaskList = () => {
     const fetchData = async () => {
       try {
         console.log("Querying data");
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        console.log(user);
+
         const { data, error } = await supabase
           .from("user_task")
           .select(
@@ -46,111 +45,103 @@ const TaskList = () => {
             )
           `
           )
-          .eq("user_id", user.id)
           .gte("start_date_time", lowerBoundDate.toISOString())
           .lte("start_date_time", upperBoundDate.toISOString());
 
         if (error) {
           console.error("Error fetching data:", error);
-          return null;
+          throw error;
         }
-        return data;
+        const sortedData = sortUserTaskDataByStartDate(data);
+        setUserTaskData(sortedData);
       } catch (error) {
         console.error("Error executing query:", error);
-        return null;
       }
     };
-    fetchData()
-      .then((result) => setUserTaskData(result))
-      .catch((error) => console.error(error));
+
+    fetchData();
   }, [upperBoundDate, lowerBoundDate]);
 
   console.log(userTaskData);
 
   return (
-    <div className="w-full rounded-lg border border-gray-200 bg-white p-0 shadow dark:border-gray-700 dark:bg-gray-800 md:p-6">
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white p-0 shadow dark:border-gray-700 dark:bg-gray-800 md:p-6">
+      <div className="relative overflow-hidden overflow-x-auto border shadow-md dark:border-gray-700 sm:rounded-lg">
         <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
           <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              {COLUMN_NAMES.map((columnName) => (
-                <th key={columnName} scope="col" className="px-1 py-3 md:px-6">
-                  {columnName}
-                </th>
-              ))}
+              <th scope="col" className="px-2 py-3 md:px-6">
+                Task
+              </th>
+              <th scope="col" className="hidden px-6 py-3 md:table-cell">
+                Catagory
+              </th>
+              <th scope="col" className="px-2 py-3 text-right md:px-6">
+                Start
+              </th>
+              <th scope="col" className="px-2 py-3 text-right md:px-6">
+                End
+              </th>
+              <th scope="col" className="hidden px-6 py-3 md:table-cell">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b bg-white dark:border-gray-700 dark:bg-gray-900">
-              <th scope="row" className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                Apple MacBook Pro 17
-              </th>
-              <td className="px-6 py-4">Silver</td>
-              <td className="px-6 py-4">Laptop</td>
-              <td className="px-6 py-4">$2999</td>
-              <td className="px-6 py-4">
-                <a href="#" className="font-medium text-blue-600 hover:underline dark:text-blue-500">
-                  Edit
-                </a>
-              </td>
-            </tr>
-            <tr className="border-b bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-              <th scope="row" className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                Microsoft Surface Pro
-              </th>
-              <td className="px-6 py-4">White</td>
-              <td className="px-6 py-4">Laptop PC</td>
-              <td className="px-6 py-4">$1999</td>
-              <td className="px-6 py-4">
-                <a href="#" className="font-medium text-blue-600 hover:underline dark:text-blue-500">
-                  Edit
-                </a>
-              </td>
-            </tr>
-            <tr className="border-b bg-white dark:border-gray-700 dark:bg-gray-900">
-              <th scope="row" className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                Magic Mouse 2
-              </th>
-              <td className="px-6 py-4">Black</td>
-              <td className="px-6 py-4">Accessories</td>
-              <td className="px-6 py-4">$99</td>
-              <td className="px-6 py-4">
-                <a href="#" className="font-medium text-blue-600 hover:underline dark:text-blue-500">
-                  Edit
-                </a>
-              </td>
-            </tr>
-            <tr className="border-b bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-              <th scope="row" className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                Google Pixel Phone
-              </th>
-              <td className="px-6 py-4">Gray</td>
-              <td className="px-6 py-4">Phone</td>
-              <td className="px-6 py-4">$799</td>
-              <td className="px-6 py-4">
-                <a href="#" className="font-medium text-blue-600 hover:underline dark:text-blue-500">
-                  Edit
-                </a>
-              </td>
-            </tr>
-            <tr className="border-b bg-white dark:border-gray-700 dark:bg-gray-900">
-              <th scope="row" className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">
-                Apple Watch 5
-              </th>
-              <td className="px-6 py-4">Red</td>
-              <td className="px-6 py-4">Wearables</td>
-              <td className="px-6 py-4">$999</td>
-              <td className="px-6 py-4">
-                <a href="#" className="font-medium text-blue-600 hover:underline dark:text-blue-500">
-                  Edit
-                </a>
-              </td>
-            </tr>
+            {!userTaskData ? (
+              <tr className={oddRowClasses}>
+                <th scope="row" className=" animate-pulse px-2 py-3 font-medium text-gray-900 dark:text-white md:px-6">
+                  <div class="h-2.5 w-48 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                </th>
+                <td className="hidden px-6 py-3 md:table-cell">
+                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                </td>
+                <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
+                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                </td>
+                <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
+                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                </td>
+                <td className="hidden px-6 py-3 md:table-cell">
+                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                </td>
+              </tr>
+            ) : (
+              userTaskData.map((userTaskData, index) => createTaskRow(userTaskData, index))
+            )}
           </tbody>
         </table>
       </div>
     </div>
   );
 };
+
+function sortUserTaskDataByStartDate(data) {
+  return data.sort((a, b) => {
+    return Date.parse(a.start_date_time) - Date.parse(b.start_date_time);
+  });
+}
+
+function createTaskRow(data, index) {
+  const currentRowClasses = index % 2 === 0 ? evenRowClasses : oddRowClasses;
+
+  return (
+    <tr className={currentRowClasses}>
+      <th scope="row" className=" px-2 py-3 font-medium text-gray-900 dark:text-white md:px-6">
+        {data.task.name}
+      </th>
+      <td className="hidden px-6 py-3 md:table-cell">{data.task.category?.name}</td>
+      <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
+        {getFormattedTimeStringFromString(data.start_date_time)}
+      </td>
+      <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
+        {getFormattedTimeStringFromString(data.end_date_time)}
+      </td>
+      <td className="hidden px-6 py-3 md:table-cell">
+        <button className="font-medium text-blue-600 hover:underline dark:text-blue-500">Edit</button>
+      </td>
+    </tr>
+  );
+}
 
 export default TaskList;
