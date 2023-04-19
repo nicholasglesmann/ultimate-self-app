@@ -60,9 +60,8 @@ const TaskList = () => {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [upperBoundDate, lowerBoundDate]);
-
-  console.log(userTaskData);
 
   return (
     <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white p-0 shadow dark:border-gray-700 dark:bg-gray-800 md:p-6">
@@ -91,19 +90,19 @@ const TaskList = () => {
             {!userTaskData ? (
               <tr className={oddRowClasses}>
                 <th scope="row" className=" animate-pulse px-2 py-3 font-medium text-gray-900 dark:text-white md:px-6">
-                  <div class="h-2.5 w-48 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-2.5 w-48 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 </th>
                 <td className="hidden px-6 py-3 md:table-cell">
-                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 </td>
                 <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
-                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 </td>
                 <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
-                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 </td>
                 <td className="hidden px-6 py-3 md:table-cell">
-                  <div class="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-2.5 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700"></div>
                 </td>
               </tr>
             ) : (
@@ -126,16 +125,16 @@ function createTaskRow(data, index) {
   const currentRowClasses = index % 2 === 0 ? evenRowClasses : oddRowClasses;
 
   return (
-    <tr className={currentRowClasses}>
+    <tr key={data.id} className={currentRowClasses}>
       <th scope="row" className=" px-2 py-3 font-medium text-gray-900 dark:text-white md:px-6">
-        {data.task.name}
+        {data.task?.name}
       </th>
-      <td className="hidden px-6 py-3 md:table-cell">{data.task.category?.name}</td>
+      <td className="hidden px-6 py-3 md:table-cell">{data.task?.category?.name}</td>
       <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
-        {getFormattedTimeStringFromString(data.start_date_time)}
+        {getFormattedTimeStringFromString(data?.start_date_time)}
       </td>
       <td className="whitespace-nowrap px-2 py-3 text-right md:px-6">
-        {getFormattedTimeStringFromString(data.end_date_time)}
+        {getFormattedTimeStringFromString(data?.end_date_time)}
       </td>
       <td className="hidden px-6 py-3 md:table-cell">
         <button className="font-medium text-blue-600 hover:underline dark:text-blue-500">Edit</button>

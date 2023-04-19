@@ -15,6 +15,7 @@ export const Layout = ({ children }) => {
   const session = useSession();
   const supabase = useSupabaseClient();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setCurrentPath(window.location.pathname);
     setIsLoading(false);
@@ -25,7 +26,9 @@ export const Layout = ({ children }) => {
   if (isLoading) {
     Rendered = Spinner;
   } else if (!session && !publicRoutes.includes(currentPath)) {
-    Rendered = () => <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} theme="dark" />;
+    const authComponent = () => <Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} theme="dark" />;
+    authComponent.displayName = "Auth";
+    Rendered = authComponent;
   } else {
     Rendered = () => children;
   }

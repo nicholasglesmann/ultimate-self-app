@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useUser, useSupabaseClient } from "@supabase/auth-helpers-react";
 import DateTimePicker from "../../../components/DateTimePicker";
 import formStyles from "../../../styles/formStyles";
@@ -12,11 +12,13 @@ function NewTaskForm({ successCallback, failureCallback }) {
   const defaultEndDateTime = new Date(now);
 
   const supabase = useSupabaseClient();
-  const user = useUser();
+
+  const [categoryList, setCategoryList] = useState(() => []);
+  const [taskList, setTaskList] = useState(() => []);
 
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryName, setCategory] = useState("");
 
   // default is "now" - defaultTaskLength in the user's timezone
   const [startDateTime, setStartDateTime] = useState(() => defaultStartDateTime);
@@ -28,7 +30,8 @@ function NewTaskForm({ successCallback, failureCallback }) {
     event.preventDefault();
     try {
       // do some validation first
-      const taskId = await upsertTaskRecord();
+      const categoryId = await upsertCategoryRecord();
+      const taskId = await upsertTaskRecord(categoryId);
       await upsertUserTaskRecord(taskId);
       successCallback();
     } catch (error) {
@@ -36,28 +39,67 @@ function NewTaskForm({ successCallback, failureCallback }) {
     }
   };
 
-  const upsertTaskRecord = async () => {
+  const upsertCategoryRecord = async () => {
+    const existingCategoryMatches = categoryList.filter((category) => category.name === categoryName);
+
+    const newCategory = {
+      name: categoryName,
+    };
+
+    // add the id of the Category if it exists already
+    if (existingCategoryMatches.length) {
+      newCategory.id = existingCategoryMatches[0].id;
+    }
+
+    let { data, error } = await supabase.from("category").upsert(newCategory).select();
+    if (error) throw error;
+    return data[0].id;
+  };
+
+  const upsertTaskRecord = async (categoryId) => {
+    const existingTaskMatches = taskList.filter((task) => task.name === taskName);
+
     const newTask = {
       name: taskName,
       description: description,
+      category_id: categoryId,
     };
 
-    let { data, error } = await supabase.from("task").upsert(newTask, { onConflict: "name" }).select();
+    // add the id of the task if it exists already
+    if (existingTaskMatches.length) {
+      newTask.id = existingTaskMatches[0].id;
+    }
+
+    let { data, error } = await supabase.from("task").upsert(newTask).select();
     if (error) throw error;
     return data[0].id;
   };
 
   const upsertUserTaskRecord = async (taskId) => {
     const userTask = {
-      user_id: user.id,
       task_id: taskId,
-      start_date_time: startDateTime,
-      end_date_time: endDateTime,
+      start_date_time: startDateTime.toISOString(),
+      end_date_time: endDateTime.toISOString(),
     };
 
     let { error } = await supabase.from("user_task").insert(userTask);
     if (error) throw error;
   };
+
+  useEffect(() => {
+    const getExistingTasks = async () => {
+      const { data, error } = await supabase.from("task").select().order("name");
+      if (error) throw error;
+      setTaskList(data);
+    };
+    const getExistingCategories = async () => {
+      const { data, error } = await supabase.from("category").select().order("name");
+      if (error) throw error;
+      setCategoryList(data);
+    };
+    getExistingTasks();
+    getExistingCategories();
+  }, []);
 
   return (
     <form className="w-full p-2 lg:mx-auto lg:w-96" onSubmit={handleSubmit}>
@@ -68,28 +110,35 @@ function NewTaskForm({ successCallback, failureCallback }) {
         <input
           type="text"
           id="taskname"
+          list="tasknames"
           name="taskname"
           className={formStyles.input}
           value={taskName}
           onChange={(event) => setTaskName(event.target.value)}
         />
+        <datalist id="tasknames">
+          {taskList.map((task) => (
+            <option key={task.id} value={task.name}></option>
+          ))}
+        </datalist>
       </div>
       <div className="mb-4">
         <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white" htmlFor="category">
           Category:
         </label>
-        <select
+        <input
           id="category"
+          list="categoryList"
           name="category"
           className={formStyles.input}
-          value={category}
+          value={categoryName}
           onChange={(event) => setCategory(event.target.value)}
-        >
-          <option value="personal">Personal</option>
-          <option value="work">Work</option>
-          <option value="study">Study</option>
-          <option value="other">Other</option>
-        </select>
+        />
+        <datalist id="categoryList">
+          {categoryList.map((task) => (
+            <option key={task.id} value={task.name}></option>
+          ))}
+        </datalist>
       </div>
 
       <div className="mb-4">
