@@ -99,6 +99,7 @@ function NewTaskForm({ successCallback, failureCallback }) {
     };
     getExistingTasks();
     getExistingCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

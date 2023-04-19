@@ -8,23 +8,19 @@ export default function Avatar({ uid, url, size, onUpload }) {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (url) downloadImage(url);
-  }, [url]);
-
-  async function downloadImage(path) {
-    try {
-      const { data, error } = await supabase.storage
-        .from("avatars")
-        .download(path);
-      if (error) {
-        throw error;
+    const downloadImage = async (path) => {
+      try {
+        const { data, error } = await supabase.storage.from("avatars").download(path);
+        if (error) throw error;
+        const url = URL.createObjectURL(data);
+        setAvatarUrl(url);
+      } catch (error) {
+        console.log("Error downloading image: ", error);
       }
-      const url = URL.createObjectURL(data);
-      setAvatarUrl(url);
-    } catch (error) {
-      console.log("Error downloading image: ", error);
-    }
-  }
+    };
+    if (url) downloadImage(url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url]);
 
   const uploadAvatar = async (event) => {
     try {
@@ -39,9 +35,7 @@ export default function Avatar({ uid, url, size, onUpload }) {
       const fileName = `${uid}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      let { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file, { upsert: true });
+      let { error: uploadError } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
 
       if (uploadError) {
         throw uploadError;
@@ -59,18 +53,9 @@ export default function Avatar({ uid, url, size, onUpload }) {
   return (
     <div>
       {avatarUrl ? (
-        <Image
-          src={avatarUrl}
-          alt="Avatar"
-          className="avatar image"
-          height={size}
-          width={size}
-        />
+        <Image src={avatarUrl} alt="Avatar" className="avatar image" height={size} width={size} />
       ) : (
-        <div
-          className="avatar no-image"
-          style={{ height: size, width: size }}
-        />
+        <div className="avatar no-image" style={{ height: size, width: size }} />
       )}
       <div style={{ width: size }}>
         <label className="button primary block" htmlFor="single">
