@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { getFormattedTimeStringFromString } from "../../../utils/DateTime";
 import TaskActions from "./TaskActions";
-import { subscribe, publish, unsubscribe, DELETED_USER_TASK, ADDED_USER_TASK } from "../../../utils/Event";
+import { subscribe, unsubscribe, DELETED_USER_TASK, ADDED_USER_TASK, UPDATED_USER_TASK } from "../../../utils/Event";
 
 const oddRowClasses = "border-b bg-white dark:border-gray-700 dark:bg-gray-900 last:border-none";
 const evenRowClasses = "border-b bg-gray-50 dark:border-gray-700 dark:bg-gray-800 last:border-none";
@@ -77,11 +77,13 @@ const TaskList = () => {
 
   const subscribeToEvents = () => {
     subscribe(ADDED_USER_TASK, handleUserTaskChange);
+    subscribe(UPDATED_USER_TASK, handleUserTaskChange);
     subscribe(DELETED_USER_TASK, handleUserTaskChange);
   };
 
   const unsubscribeToEvents = () => {
     unsubscribe(ADDED_USER_TASK, handleUserTaskChange);
+    unsubscribe(UPDATED_USER_TASK, handleUserTaskChange);
     unsubscribe(DELETED_USER_TASK, handleUserTaskChange);
   };
 

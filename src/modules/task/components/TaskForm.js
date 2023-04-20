@@ -3,7 +3,8 @@ import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import DateTimePicker from "../../../components/DateTimePicker";
 import formStyles from "../../../styles/formStyles";
 import { getTimezoneCorrectDateFromString } from "../../../utils/DateTime";
-import { publish, ADDED_USER_TASK } from "../../../utils/Event";
+import { publish, ADDED_USER_TASK, UPDATED_USER_TASK, SHOW_TOAST } from "../../../utils/Event";
+import { TOAST_TYPES } from "../../../components/Toast";
 
 const defaultTaskLengthMinutes = 30; // should be a setting
 const defaultTaskLengthMilliseconds = defaultTaskLengthMinutes * 60000;
@@ -40,9 +41,28 @@ function TaskForm({ successCallback, existingRecord }) {
       const taskId = await upsertTaskRecord(categoryId);
       await upsertUserTaskRecord(taskId);
       successCallback();
-      publish(ADDED_USER_TASK);
+
+      if (existingRecord) {
+        publish(UPDATED_USER_TASK);
+        publish(SHOW_TOAST, { message: "Task updated!", type: TOAST_TYPES.SUCCESS });
+      } else {
+        publish(ADDED_USER_TASK);
+        publish(SHOW_TOAST, { message: "Task created!", type: TOAST_TYPES.SUCCESS });
+      }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleChangeTaskName = (taskName) => {
+    setTaskName(taskName);
+
+    const existingTask = taskList.find((task) => task.name === taskName);
+
+    if (existingTask) {
+      const existingCategory = categoryList.find((category) => category.id === existingTask.category_id);
+      setCategory(existingCategory?.name);
+      setDescription(existingTask.description);
     }
   };
 
@@ -51,15 +71,11 @@ function TaskForm({ successCallback, existingRecord }) {
       name: categoryName,
     };
 
-    if (existingRecord) {
-      newCategory.id = existingRecord?.task?.category?.id;
-    } else {
-      const existingCategoryMatches = categoryList.filter((category) => category.name === categoryName);
+    const existingCategoryMatches = categoryList.filter((category) => category.name === categoryName);
 
-      // add the id of the Category if it exists already, otherwise a new Category record will be created
-      if (existingCategoryMatches.length) {
-        newCategory.id = existingCategoryMatches[0]?.id;
-      }
+    // add the id of the Category if it exists already, otherwise a new Category record will be created
+    if (existingCategoryMatches.length) {
+      newCategory.id = existingCategoryMatches[0]?.id;
     }
 
     let { data, error } = await supabase.from("category").upsert(newCategory).select();
@@ -74,15 +90,11 @@ function TaskForm({ successCallback, existingRecord }) {
       category_id: categoryId,
     };
 
-    if (existingRecord) {
-      newTask.id = existingRecord?.task?.id;
-    } else {
-      const existingTaskMatches = taskList.filter((task) => task.name === taskName);
+    const existingTaskMatches = taskList.filter((task) => task.name === taskName);
 
-      // add the id of the Task if it exists already, otherwise a new Task record will be created
-      if (existingTaskMatches.length) {
-        newTask.id = existingTaskMatches[0]?.id;
-      }
+    // add the id of the Task if it exists already, otherwise a new Task record will be created
+    if (existingTaskMatches.length) {
+      newTask.id = existingTaskMatches[0]?.id;
     }
 
     let { data, error } = await supabase.from("task").upsert(newTask).select();
@@ -134,7 +146,7 @@ function TaskForm({ successCallback, existingRecord }) {
           name="taskname"
           className={formStyles.input}
           value={taskName}
-          onChange={(event) => setTaskName(event.target.value)}
+          onChange={(event) => handleChangeTaskName(event.target.value)}
         />
         <datalist id="tasknames">
           {taskList.map((task) => (

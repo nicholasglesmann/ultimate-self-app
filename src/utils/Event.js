@@ -17,4 +17,5 @@ export const SHOW_TOAST = "show-toast";
 export const SHOW_TASK_FORM_MODAL = "show-task-form-modal";
 export const SHOW_DELETE_TASK_MODAL = "show-delete-task-modal";
 export const ADDED_USER_TASK = "added-user-task";
+export const UPDATED_USER_TASK = "updated-user-task";
 export const DELETED_USER_TASK = "deleted-user-task";
