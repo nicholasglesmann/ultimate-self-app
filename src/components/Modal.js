@@ -6,7 +6,7 @@ const Modal = ({ children, id, setIsOpen }) => {
         id={id}
         tabIndex="-1"
         aria-hidden="true"
-        className="fixed left-1/2 top-1/2 z-50 max-h-full max-w-full -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto overflow-x-hidden"
+        className="fixed left-1/2 top-1/2 z-50 max-h-full max-w-full -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto overflow-x-hidden shadow-2xl"
       >
         <div className="relative max-h-full w-full max-w-md">
           {/* <!-- Close Button --> */}

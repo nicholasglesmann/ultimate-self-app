@@ -14,10 +14,10 @@ const Toast = ({ message, type, closeCallback }) => {
   if (!ToastType) throw "Unsupported Toast Type";
 
   return (
-    <div className="absolute left-1/2 z-50 -translate-x-1/2">
+    <div className="fixed left-1/2 top-14 z-50 -translate-x-1/2">
       <div
         id="toast"
-        className="mb-4 flex w-72 items-center rounded-lg bg-white p-4 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400"
+        className="mb-4 flex w-72 animate-bounce items-center rounded-lg bg-white p-4 text-gray-500 shadow-lg dark:bg-gray-800 dark:text-gray-400"
         role="alert"
       >
         <ToastType />

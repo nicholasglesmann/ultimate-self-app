@@ -22,3 +22,10 @@ export function getFormattedTimeStringFromString(dateString) {
 
   return date.toLocaleTimeString(window.navigator.language, timeFormatStyle);
 }
+
+export function getTimezoneCorrectDateFromString(dateString) {
+  const now = Date.now() - new Date().getTimezoneOffset() * 60000;
+  const date = new Date(dateString);
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date;
+}
