@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import DateTimePicker from "../../../components/DateTimePicker";
 import formStyles from "../../../styles/formStyles";
@@ -9,15 +9,12 @@ import { TOAST_TYPES } from "../../../components/Toast";
 const defaultTaskLengthMinutes = 30; // should be a setting
 const defaultTaskLengthMilliseconds = defaultTaskLengthMinutes * 60000;
 
-function TaskForm({ successCallback, existingRecord }) {
+function TaskForm({ successCallback, existingRecord, existingTasks, existingCategories }) {
   const now = Date.now() - new Date().getTimezoneOffset() * 60000;
   const defaultStartDateTime = new Date(now - defaultTaskLengthMilliseconds);
   const defaultEndDateTime = new Date(now);
 
   const supabase = useSupabaseClient();
-
-  const [categoryList, setCategoryList] = useState(() => []);
-  const [taskList, setTaskList] = useState(() => []);
 
   const [taskName, setTaskName] = useState(() => (!existingRecord ? "" : existingRecord?.task?.name));
   const [description, setDescription] = useState(() => (!existingRecord ? "" : existingRecord?.task?.description));
@@ -57,10 +54,10 @@ function TaskForm({ successCallback, existingRecord }) {
   const handleChangeTaskName = (taskName) => {
     setTaskName(taskName);
 
-    const existingTask = taskList.find((task) => task.name === taskName);
+    const existingTask = existingTasks.find((task) => task.name === taskName);
 
     if (existingTask) {
-      const existingCategory = categoryList.find((category) => category.id === existingTask.category_id);
+      const existingCategory = existingCategories.find((category) => category.id === existingTask.category_id);
       setCategory(existingCategory?.name);
       setDescription(existingTask.description);
     }
@@ -71,7 +68,7 @@ function TaskForm({ successCallback, existingRecord }) {
       name: categoryName,
     };
 
-    const existingCategoryMatches = categoryList.filter((category) => category.name === categoryName);
+    const existingCategoryMatches = existingCategories.filter((category) => category.name === categoryName);
 
     // add the id of the Category if it exists already, otherwise a new Category record will be created
     if (existingCategoryMatches.length) {
@@ -90,7 +87,7 @@ function TaskForm({ successCallback, existingRecord }) {
       category_id: categoryId,
     };
 
-    const existingTaskMatches = taskList.filter((task) => task.name === taskName);
+    const existingTaskMatches = existingTasks.filter((task) => task.name === taskName);
 
     // add the id of the Task if it exists already, otherwise a new Task record will be created
     if (existingTaskMatches.length) {
@@ -117,22 +114,6 @@ function TaskForm({ successCallback, existingRecord }) {
     if (error) throw error;
   };
 
-  useEffect(() => {
-    const getExistingTasks = async () => {
-      const { data, error } = await supabase.from("task").select().order("name");
-      if (error) throw error;
-      setTaskList(data);
-    };
-    const getExistingCategories = async () => {
-      const { data, error } = await supabase.from("category").select().order("name");
-      if (error) throw error;
-      setCategoryList(data);
-    };
-    getExistingTasks();
-    getExistingCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <form className="w-full p-2 lg:mx-auto lg:w-96" onSubmit={handleSubmit}>
       <div className="mb-4">
@@ -149,7 +130,7 @@ function TaskForm({ successCallback, existingRecord }) {
           onChange={(event) => handleChangeTaskName(event.target.value)}
         />
         <datalist id="tasknames">
-          {taskList.map((task) => (
+          {existingTasks?.map((task) => (
             <option key={task.id} value={task.name}></option>
           ))}
         </datalist>
@@ -160,14 +141,14 @@ function TaskForm({ successCallback, existingRecord }) {
         </label>
         <input
           id="category"
-          list="categoryList"
+          list="existingCategories"
           name="category"
           className={formStyles.input}
           value={categoryName}
           onChange={(event) => setCategory(event.target.value)}
         />
-        <datalist id="categoryList">
-          {categoryList.map((task) => (
+        <datalist id="existingCategories">
+          {existingCategories?.map((task) => (
             <option key={task.id} value={task.name}></option>
           ))}
         </datalist>

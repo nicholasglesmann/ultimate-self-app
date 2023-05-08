@@ -25,7 +25,6 @@ const DeleteTaskModal = () => {
     try {
       const { error } = await supabase.from("user_task").delete().eq("id", record.id);
       if (error) throw error;
-      console.log("Task deleted!");
       publish(SHOW_TOAST, { message: "Task Deleted!", type: TOAST_TYPES.SUCCESS });
       publish(DELETED_USER_TASK, record);
     } catch (error) {

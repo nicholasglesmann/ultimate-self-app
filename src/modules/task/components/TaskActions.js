@@ -66,16 +66,6 @@ const TaskActions = ({ record }) => {
               styles="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             />
           </li>
-          {/* <li>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-              Settings
-            </a>
-          </li>
-          <li>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-              Earnings
-            </a>
-          </li> */}
         </ul>
         <div className="py-2">
           <DeleteTaskButton

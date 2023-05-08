@@ -5,7 +5,7 @@ import { subscribe, unsubscribe, SHOW_TASK_FORM_MODAL } from "../../../utils/Eve
 
 const taskFormId = "taskForm";
 
-const TaskFormModal = () => {
+const TaskFormModal = ({ existingTasks, existingCategories }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [record, setRecord] = useState(null);
 
@@ -28,7 +28,12 @@ const TaskFormModal = () => {
     <>
       {isOpen && (
         <Modal id={taskFormId} setIsOpen={setIsOpen}>
-          <TaskForm successCallback={handleSuccess} existingRecord={record} />
+          <TaskForm
+            successCallback={handleSuccess}
+            existingRecord={record}
+            existingTasks={existingTasks}
+            existingCategories={existingCategories}
+          />
         </Modal>
       )}
     </>

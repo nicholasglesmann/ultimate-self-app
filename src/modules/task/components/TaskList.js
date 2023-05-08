@@ -1,98 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { getFormattedTimeStringFromString } from "../../../utils/DateTime";
 import TaskActions from "./TaskActions";
-import { subscribe, unsubscribe, DELETED_USER_TASK, ADDED_USER_TASK, UPDATED_USER_TASK } from "../../../utils/Event";
 
 const oddRowClasses = "border-b bg-white dark:border-gray-700 dark:bg-gray-900 last:border-none";
 const evenRowClasses = "border-b bg-gray-50 dark:border-gray-700 dark:bg-gray-800 last:border-none";
 
-const TaskList = () => {
-  const supabase = useSupabaseClient();
-
-  const [today, setToday] = useState(() => new Date());
-  const [lowerBoundDate, setLowerBoundDate] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  );
-  const [upperBoundDate, setUpperBoundDate] = useState(
-    () => new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
-  );
-
-  const [userTaskData, setUserTaskData] = useState(() => {
-    console.log("resetting");
-    return [];
-  });
-
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [upperBoundDate, lowerBoundDate]);
-
-  // Event Listeners
-  useEffect(() => {
-    subscribeToEvents();
-
-    return () => unsubscribeToEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      console.log("Querying data");
-
-      const { data, error } = await supabase
-        .from("user_task")
-        .select(
-          `
-            id,
-            start_date_time,
-            end_date_time,
-            user_id,
-            task_id,
-            task:task_id (
-              id,
-              name,
-              category_id,
-              category:category_id (
-                id,
-                name
-              ),
-              description
-            )
-          `
-        )
-        .gte("start_date_time", lowerBoundDate.toISOString())
-        .lte("start_date_time", upperBoundDate.toISOString());
-
-      if (error) {
-        console.error("Error fetching data:", error);
-        throw error;
-      }
-      const sortedData = sortUserTaskDataByStartDate(data);
-      setUserTaskData(sortedData);
-    } catch (error) {
-      console.error("Error executing query:", error);
-    }
-  };
-
-  const subscribeToEvents = () => {
-    subscribe(ADDED_USER_TASK, handleUserTaskChange);
-    subscribe(UPDATED_USER_TASK, handleUserTaskChange);
-    subscribe(DELETED_USER_TASK, handleUserTaskChange);
-  };
-
-  const unsubscribeToEvents = () => {
-    unsubscribe(ADDED_USER_TASK, handleUserTaskChange);
-    unsubscribe(UPDATED_USER_TASK, handleUserTaskChange);
-    unsubscribe(DELETED_USER_TASK, handleUserTaskChange);
-  };
-
-  const handleUserTaskChange = (event) => {
-    fetchData();
-  };
-
-  console.log(userTaskData);
-
+const TaskList = ({ userTaskData }) => {
   return (
     <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white p-0 shadow dark:border-gray-700 dark:bg-gray-800 md:p-6">
       <div className="relative overflow-hidden overflow-x-auto border shadow-md dark:border-gray-700 sm:rounded-lg">
@@ -142,12 +54,6 @@ const TaskList = () => {
     </div>
   );
 };
-
-function sortUserTaskDataByStartDate(data) {
-  return data.sort((a, b) => {
-    return Date.parse(a.start_date_time) - Date.parse(b.start_date_time);
-  });
-}
 
 function createTaskRow(record, index) {
   const currentRowClasses = index % 2 === 0 ? evenRowClasses : oddRowClasses;
